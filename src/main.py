@@ -17,6 +17,10 @@ def main():
     # Field
     field = Field(8, 8)
     render_field(window, field)
+    cell = field.cells[7][7]
+    for n in cell.neighborhood:
+        rect = [2*n.pos[0], 2*n.pos[1], 2, 2]
+        pygame.draw.rect(window, [255, 0, 0], rect)
     pygame.display.update()
 
     # Main loop
