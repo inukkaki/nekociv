@@ -12,7 +12,7 @@ def main():
     pygame.init()
 
     # Window
-    window = pygame.display.set_mode(size=(524, 512))
+    window = pygame.display.set_mode(size=(524, 524))
     pygame.display.set_caption(title="nekociv")
 
     # Field

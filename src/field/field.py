@@ -24,12 +24,12 @@ class Field:
                 is, the simpler the terrain becomes.
             base_width (int): This value, multiplied by the scale, becomes the
                 width of this field.
-            base_height (int): This value, multiplied by the scale, becomes the
-                height of this field.
+            base_height (int): This value, multiplied by the scale and added 1,
+                becomes the height of this field.
         """
         self.scale = scale
         self.width = self.scale*base_width
-        self.height = self.scale*base_height
+        self.height = self.scale*base_height + 1
 
         self.cells = []
         for row in range(self.height):
