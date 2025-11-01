@@ -6,7 +6,9 @@ import random
 from src.field import (
     ELEV_MEAN,
     ELEV_SD,
+    SEA_LEVEL,
 )
+from src.field.cell import Cell
 
 ELEV_GEN_N = -1.2   # North end
 ELEV_GEN_S = -1.2   # South end
@@ -27,6 +29,7 @@ def generate_terrain(field, seed):
     """
     random.seed(seed)
     calc_elevs(field)
+    determine_sea_or_land(field)
 
 
 def create_close_list(field):
@@ -197,3 +200,16 @@ def rescale_elevs(field, mean, sd):
     scale = sd/ELEV_GEN_SD
     for cell in itertools.chain.from_iterable(field.cells):
         cell.elev = scale*cell.elev + mean
+
+
+def determine_sea_or_land(field):
+    """Determines if the surface of cells is sea or land.
+
+    Args:
+        field (src.field.field.Field): Field to generate terrain on.
+    """
+    for cell in itertools.chain.from_iterable(field.cells):
+        if cell.elev < SEA_LEVEL:
+            cell.surface = Cell.SURFACE_SEA
+        else:
+            cell.surface = Cell.SURFACE_LAND

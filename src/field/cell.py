@@ -12,7 +12,10 @@ class Cell:
         pos (numpy.ndarray): Position of this cell.
         neighborhood (list[src.field.cell.Cell]): List of neighbor cells.
         elev (float): Elevation (m).
+        surface (int): State of this cell's surface.
     """
+    SURFACE_SEA = 0
+    SURFACE_LAND = 1
 
     def __init__(self, row, col):
         """Hexagonal cell that composes a field.
@@ -30,3 +33,5 @@ class Cell:
         self.neighborhood = []
 
         self.elev = 0.0  # m
+
+        self.surface = Cell.SURFACE_SEA
