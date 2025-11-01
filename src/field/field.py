@@ -1,5 +1,3 @@
-"""Simulation field."""
-
 from src.field.cell import Cell
 
 

@@ -1,5 +1,3 @@
-"""Hexagonal cells that compose a field."""
-
 import numpy as np
 
 
