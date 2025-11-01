@@ -1,9 +1,16 @@
 """Module for terrain generation."""
 
+import itertools
 import random
 
-ELEV_GEN_N = -1.2  # North end
-ELEV_GEN_S = -1.2  # South end
+from src.field import (
+    ELEV_MEAN,
+    ELEV_SD,
+)
+
+ELEV_GEN_N = -1.2   # North end
+ELEV_GEN_S = -1.2   # South end
+ELEV_GEN_WE = -0.8  # West/east end
 
 ELEV_GEN_MEAN = 0.0
 ELEV_GEN_SD = 1.0
@@ -49,6 +56,7 @@ def calc_elevs(field):
     close_list = create_close_list(field)
     init_elevs(field, close_list)
     interpolate_elevs(field, close_list)
+    rescale_elevs(field, ELEV_MEAN, ELEV_SD)
 
 
 def init_elevs(field, close_list):
@@ -72,6 +80,10 @@ def init_elevs(field, close_list):
             elif cell.row == field.height - 1:
                 # South end
                 cell.elev = ELEV_GEN_S
+                close_list[i][j] = True
+            elif cell.col == 0:
+                # West/east end
+                cell.elev = ELEV_GEN_WE
                 close_list[i][j] = True
             elif initial_cell:
                 # Cells that have an initial elevation
@@ -172,3 +184,16 @@ def interpolate_elevs(field, close_list):
             field, close_list, scale, complexity)
         scale //= 2
         complexity /= 2
+
+
+def rescale_elevs(field, mean, sd):
+    """Rescale the distribution of elevation on a field.
+
+    Args:
+        field (src.field.field.Field): Field to generate terrain on.
+        mean (float): Mean of elevation.
+        sd (float): Standard deviation of elevation.
+    """
+    scale = sd/ELEV_GEN_SD
+    for cell in itertools.chain.from_iterable(field.cells):
+        cell.elev = scale*cell.elev + mean
