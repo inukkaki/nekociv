@@ -5,22 +5,20 @@ import pygame.locals
 
 from src.field.field import Field
 from src.field.render import render_field
+from src.field.terrain import generate_terrain
 
 
 def main():
     pygame.init()
 
     # Window
-    window = pygame.display.set_mode(size=(512, 512))
+    window = pygame.display.set_mode(size=(524, 512))
     pygame.display.set_caption(title="nekociv")
 
     # Field
-    field = Field(8, 8)
+    field = Field(64, 4, 4)
+    generate_terrain(field, 1)
     render_field(window, field)
-    cell = field.cells[7][7]
-    for n in cell.neighborhood:
-        rect = [2*n.pos[0], 2*n.pos[1], 2, 2]
-        pygame.draw.rect(window, [255, 0, 0], rect)
     pygame.display.update()
 
     # Main loop

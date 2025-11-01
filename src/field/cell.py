@@ -11,6 +11,7 @@ class Cell:
         col (int): Column number where this cell is located on the field.
         pos (numpy.ndarray): Position of this cell.
         neighborhood (list[src.field.cell.Cell]): List of neighbor cells.
+        elev (float): Elevation (m).
     """
 
     def __init__(self, row, col):
@@ -27,3 +28,5 @@ class Cell:
             [self.col + (self.row % 2)/2, self.row], dtype=np.float64)
 
         self.neighborhood = []
+
+        self.elev = 0.0  # m

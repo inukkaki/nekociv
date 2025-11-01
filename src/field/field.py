@@ -9,20 +9,27 @@ class Field:
     """Field where simulations are performed on.
 
     Attributes:
+        scale (int): Scale of terrain simplicity. The greater this value is,
+            the simpler the terrain becomes.
         width (int): Number of rows in the cell array.
         height (int): Number of columns in the cell array.
         cells (list[list[src.field.cell.Cell]]): 2D array of cells.
     """
 
-    def __init__(self, width, height):
+    def __init__(self, scale, base_width, base_height):
         """Field where simulations are performed on.
 
         Args:
-            width (int): Number of rows in the cell array.
-            height (int): Number of columns in the cell array.
+            scale (int): Scale of terrain simplicity. The greater this value
+                is, the simpler the terrain becomes.
+            base_width (int): This value, multiplied by the scale, becomes the
+                width of this field.
+            base_height (int): This value, multiplied by the scale, becomes the
+                height of this field.
         """
-        self.width = width
-        self.height = height
+        self.scale = scale
+        self.width = self.scale*base_width
+        self.height = self.scale*base_height
 
         self.cells = []
         for row in range(self.height):
