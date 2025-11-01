@@ -1,4 +1,6 @@
-"""Hexagonal Cells that compose a Field."""
+"""Hexagonal cells that compose a field."""
+
+import numpy as np
 
 
 class Cell:
@@ -6,5 +8,6 @@ class Cell:
         self.row = row
         self.col = col
 
-        self.x = self.col + (self.row % 2)/2
-        self.y = self.row
+        self.pos = np.array(
+            [self.col + (self.row % 2)/2, self.row], dtype=np.float64)
+                # Position
