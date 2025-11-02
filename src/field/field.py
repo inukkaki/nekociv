@@ -6,7 +6,7 @@ from src.field.cell import Cell
 
 
 class Field:
-    """Field where simulations are performed on.
+    """Field which simulations are performed on.
 
     Attributes:
         scale (int): Scale of terrain simplicity. The greater this value is,
@@ -17,7 +17,7 @@ class Field:
     """
 
     def __init__(self, scale, base_width, base_height):
-        """Field where simulations are performed on.
+        """Field which simulations are performed on.
 
         Args:
             scale (int): Scale of terrain simplicity. The greater this value

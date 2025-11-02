@@ -13,6 +13,7 @@ class Cell:
         neighborhood (list[src.field.cell.Cell]): List of neighbor cells.
         elev (float): Elevation (m).
         surface (int): State of this cell's surface.
+        tribe (src.civ.tribe.Tribe): Tribe that exists on this cell.
     """
     SURFACE_SEA = 0
     SURFACE_LAND = 1
@@ -35,3 +36,5 @@ class Cell:
         self.elev = 0.0  # m
 
         self.surface = Cell.SURFACE_SEA
+
+        self.tribe = None
