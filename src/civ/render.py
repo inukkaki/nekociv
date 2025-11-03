@@ -6,7 +6,7 @@ import pygame
 
 from src.field.render import calc_cell_rect
 
-RENDER_MAX_POPL = 100
+RENDER_POPL_MAX = 100
 
 
 def calc_popl_color(tribe):
@@ -18,8 +18,8 @@ def calc_popl_color(tribe):
     Returns:
         np.ndarray: Color vector (RGBA).
     """
-    x = max(0, min(tribe.popl, RENDER_MAX_POPL))/RENDER_MAX_POPL
-    color = 255.0*np.array(cm.jet(x), dtype=np.float64)
+    x = max(0, min(tribe.popl, RENDER_POPL_MAX))/RENDER_POPL_MAX
+    color = 255.0*np.array(cm.viridis(x), dtype=np.float64)
     return color
 
 

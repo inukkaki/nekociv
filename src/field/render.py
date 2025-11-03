@@ -3,6 +3,7 @@
 import itertools
 import math
 
+import matplotlib.cm as cm
 import numpy as np
 import pygame
 
@@ -25,6 +26,8 @@ RENDER_ELEV_LAND_MAX_STEP = (
 
 RENDER_ELEV_LAND_COLOR_MIN = 47.0
 RENDER_ELEV_LAND_COLOR_MAX = 255.0
+
+RENDER_STPN_MAX = 250.0  # m
 
 
 def calc_elev_sea_color(elev):
@@ -72,15 +75,36 @@ def calc_elev_color(cell):
         cell (src.field.cell.Cell): Cell to render.
 
     Returns:
-        np.ndarray: Color vector (RGBA).
+        numpy.ndarray: Color vector (RGBA).
     """
     if cell.surface == Cell.SURFACE_SEA:
         c = calc_elev_sea_color(cell.elev)
+        color = np.array([c, c, c, 255.0], dtype=np.float64)
     elif cell.surface == Cell.SURFACE_LAND:
         c = calc_elev_land_color(cell.elev)
+        color = np.array([c, c, c, 255.0], dtype=np.float64)
     else:
-        c = 0.0
-    color = np.array([c, c, c, 255.0], dtype=np.float64)
+        color = np.array([255.0, 0.0, 255.0, 255.0], dtype=np.float64)
+    return color
+
+
+def calc_stpn_color(cell):
+    """Calculates the rendering color based on a cell's steepness.
+
+    Args:
+        cell (src.field.cell.Cell): Cell to render.
+
+    Returns:
+        numpy.ndarray: Color vector (RGBA).
+    """
+    if cell.surface == Cell.SURFACE_SEA:
+        c = calc_elev_sea_color(cell.elev)
+        color = np.array([c, c, c, 255.0], dtype=np.float64)
+    elif cell.surface == Cell.SURFACE_LAND:
+        x = min(cell.stpn, RENDER_STPN_MAX)/RENDER_STPN_MAX
+        color = 255.0*np.array(cm.viridis(x), dtype=np.float64)
+    else:
+        color = np.array([0.0, 0.0, 0.0, 255.0], dtype=np.float64)
     return color
 
 
@@ -97,24 +121,28 @@ def calc_cell_rect(cell):
     return rect
 
 
-def render_cell(surface, cell):
+def render_cell(surface, cell, color_func):
     """Renders a cell on a surface.
 
     Args:
         surface (pygame.Surface): Surface to render the cell.
         cell (src.field.cell.Cell): Cell to render.
+        color_func (Callable[src.field.cell.Cell, numpy.ndarray]): Function to
+            calculate the rendering color.
     """
-    color = calc_elev_color(cell)
+    color = color_func(cell)
     rect = calc_cell_rect(cell)
     pygame.draw.rect(surface, color, rect)
 
 
-def render_field(surface, field):
+def render_field(surface, field, color_func):
     """Renders a field on a surface.
 
     Args:
         surface (pygame.Surface): Surface to render the field.
         field (src.field.field.Field): Field to render.
+        color_func (Callable[src.field.cell.Cell, numpy.ndarray]): Function to
+            calculate the rendering color.
     """
     for cell in itertools.chain.from_iterable(field.cells):
-        render_cell(surface, cell)
+        render_cell(surface, cell, color_func)

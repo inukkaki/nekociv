@@ -12,6 +12,8 @@ class Cell:
         pos (numpy.ndarray): Position of this cell.
         neighborhood (list[src.field.cell.Cell]): List of neighbor cells.
         elev (float): Elevation (m).
+        stpn (float): Steepness (m). Mean absolute elevation difference from
+            neighbor cells.
         surface (int): State of this cell's surface.
         tribe (src.civ.tribe.Tribe): Tribe that exists on this cell.
     """
@@ -34,6 +36,7 @@ class Cell:
         self.neighborhood = []
 
         self.elev = 0.0  # m
+        self.stpn = 0.0  # m
 
         self.surface = Cell.SURFACE_SEA
 
