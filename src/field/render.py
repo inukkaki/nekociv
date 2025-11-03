@@ -1,4 +1,4 @@
-"""Module for visualizing a simulation field."""
+"""Module for rendering a simulation field."""
 
 import itertools
 import math
@@ -84,6 +84,19 @@ def calc_elev_color(cell):
     return color
 
 
+def calc_cell_rect(cell):
+    """Calculates a rect that encloses a cell's area.
+
+    Args:
+        cell (src.field.cell.Cell): Cell to render.
+
+    Returns:
+        list[float]: Rect that encloses the cell's area.
+    """
+    rect = [2*cell.pos[0], 2*cell.pos[1], 2.0, 2.0]
+    return rect
+
+
 def render_cell(surface, cell):
     """Renders a cell on a surface.
 
@@ -92,7 +105,7 @@ def render_cell(surface, cell):
         cell (src.field.cell.Cell): Cell to render.
     """
     color = calc_elev_color(cell)
-    rect = [2*cell.pos[0], 2*cell.pos[1], 2, 2]
+    rect = calc_cell_rect(cell)
     pygame.draw.rect(surface, color, rect)
 
 

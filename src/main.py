@@ -3,6 +3,8 @@ import time
 import pygame
 import pygame.locals
 
+from src.civ.render import render_tribe
+from src.civ.tribe import Tribe
 from src.field.field import Field
 from src.field.render import render_field
 from src.field.terrain import generate_terrain
@@ -17,8 +19,19 @@ def main():
 
     # Field
     field = Field(64, 4, 4)
-    generate_terrain(field, 1)
-    render_field(window, field)
+    seed = 9
+    generate_terrain(field, seed)
+
+    field_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
+    render_field(field_surface, field)
+    window.blit(field_surface, (0, 0))
+
+    # Tribe
+    tribe = Tribe(50, field.cells[70][200])
+
+    tribe_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
+    render_tribe(tribe_surface, tribe)
+    window.blit(tribe_surface, (0, 0))
     pygame.display.update()
 
     # Main loop
