@@ -14,7 +14,9 @@ class Field:
         width (int): Number of rows in the cell array.
         height (int): Number of columns in the cell array.
         cells (list[list[src.field.cell.Cell]]): 2D array of cells.
+        cell_diameter (float): Diameter of a circle inscribed in a cell.
     """
+    CIRCUMFERENCE = 40_000  # km
 
     def __init__(self, scale, base_width, base_height):
         """Field which simulations are performed on.
@@ -39,6 +41,8 @@ class Field:
                 temp_cells.append(cell)
             self.cells.append(temp_cells)
         self.init_neighborhood_of_cells()
+
+        self.cell_diameter = 1000*Field.CIRCUMFERENCE/(2*self.height)  # m
 
     def init_neighborhood_of_cells(self):
         """Initializes every cell's neighborhood."""

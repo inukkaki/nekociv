@@ -226,4 +226,5 @@ def calc_stpns(field):
         cell.stpn = 0.0
         for neighbor in cell.neighborhood:
             cell.stpn += abs(neighbor.elev - cell.elev)
+        cell.stpn /= field.cell_diameter
         cell.stpn /= len(cell.neighborhood)

@@ -1,3 +1,4 @@
+import random
 import time
 
 import pygame
@@ -28,17 +29,24 @@ def main():
 
     field_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
     render_field(field_surface, field, calc_elev_color)
-    window.blit(field_surface, (0, 0))
 
     # Tribe
-    tribe = Tribe(50, field.cells[70][200])
+    tribes = [
+        Tribe(10, field.cells[69][199]),
+        Tribe(10, field.cells[69][200]),
+        Tribe(10, field.cells[70][199]),
+        Tribe(10, field.cells[70][200]),
+        Tribe(10, field.cells[70][201]),
+        Tribe(10, field.cells[71][199]),
+        Tribe(10, field.cells[71][200]),
+    ]
 
     tribe_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
-    render_tribe(tribe_surface, tribe)
-    window.blit(tribe_surface, (0, 0))
-    pygame.display.update()
 
     # Main loop
+    sim_seed = 1
+    random.seed(sim_seed)
+
     running = True
 
     while running:
@@ -48,6 +56,17 @@ def main():
                 running = False
         if not running:
             break
+
+        # Simulation
+        tribe_surface.fill([0, 0, 0, 0])
+
+        for tribe in tribes:
+            render_tribe(tribe_surface, tribe)
+
+        # Update the window
+        window.blit(field_surface, (0, 0))
+        window.blit(tribe_surface, (0, 0))
+        pygame.display.update()
 
         time.sleep(1/60)
 
