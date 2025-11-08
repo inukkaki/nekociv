@@ -40,7 +40,7 @@ def create_close_list(field):
         field (src.field.field.Field): Field to generate terrain on.
 
     Returns:
-        list[list[bool]]: Close list. All values in it are `False`.
+        out (list[list[bool]]): Close list. All values in it are `False`.
     """
     close_list = []
     for _ in range(field.height):

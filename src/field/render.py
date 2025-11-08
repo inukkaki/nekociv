@@ -37,7 +37,7 @@ def calc_elev_sea_color(elev):
         elev (float): Elevation of the cell which surface is sea.
 
     Returns:
-        float: Monochrome color level.
+        out (float): Monochrome color level.
     """
     if elev < SEA_LEVEL - ELEV_SD:
         c = RENDER_ELEV_SEA_COLOR_DEEP
@@ -53,7 +53,7 @@ def calc_elev_land_color(elev):
         elev (float): Elevation of the cell which surface is land.
 
     Returns:
-        float: Monochrome color level.
+        out (float): Monochrome color level.
     """
     if elev < RENDER_ELEV_MIN:
         c = RENDER_ELEV_LAND_COLOR_MIN
@@ -75,7 +75,7 @@ def calc_elev_color(cell):
         cell (src.field.cell.Cell): Cell to render.
 
     Returns:
-        numpy.ndarray: Color vector (RGBA).
+        out (numpy.ndarray): Color vector (RGBA).
     """
     if cell.surface == Cell.SURFACE_SEA:
         c = calc_elev_sea_color(cell.elev)
@@ -95,7 +95,7 @@ def calc_stpn_color(cell):
         cell (src.field.cell.Cell): Cell to render.
 
     Returns:
-        numpy.ndarray: Color vector (RGBA).
+        out (numpy.ndarray): Color vector (RGBA).
     """
     if cell.surface == Cell.SURFACE_SEA:
         c = calc_elev_sea_color(cell.elev)
@@ -115,7 +115,7 @@ def calc_cell_rect(cell):
         cell (src.field.cell.Cell): Cell to render.
 
     Returns:
-        list[float]: Rect that encloses the cell's area.
+        out (list[float]): Rect that encloses the cell's area.
     """
     rect = [2*cell.pos[0], 2*cell.pos[1], 2.0, 2.0]
     return rect

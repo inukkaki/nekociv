@@ -42,11 +42,10 @@ if __name__ == "__main__":
     ax_pf.plot(xs, popls, label="Popl.")
     ax_pf.plot(xs, foods, label="Food")
     ax_pf.legend()
-    ax_pf.set_xlabel("Turn")
     ax_pf.set_ylabel("Value")
 
     ax_d.plot(xs, diffs)
-    ax_pf.set_xlabel("Turn")
+    ax_d.set_xlabel("Turn")
     ax_d.set_ylabel("Difficulty")
 
     plt.show()
