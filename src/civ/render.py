@@ -33,7 +33,7 @@ def render_tribe(surface, tribe):
         surface (pygame.Surface): Surface to render the cell.
         tribe (src.civ.tribe.Tribe): Tribe to render.
     """
-    if tribe.popl <= 0:
+    if not tribe.alive:
         return
     color = calc_popl_color(tribe)
     rect = calc_cell_rect(tribe.cell)

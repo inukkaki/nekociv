@@ -32,13 +32,13 @@ def main():
 
     # Tribe
     tribes = [
-        Tribe(10, field.cells[69][199]),
-        Tribe(10, field.cells[69][200]),
-        Tribe(10, field.cells[70][199]),
-        Tribe(10, field.cells[70][200]),
-        Tribe(10, field.cells[70][201]),
-        Tribe(10, field.cells[71][199]),
-        Tribe(10, field.cells[71][200]),
+        Tribe(10, 20, field.cells[69][199]),
+        Tribe(10, 20, field.cells[69][200]),
+        Tribe(10, 20, field.cells[70][199]),
+        Tribe(10, 20, field.cells[70][200]),
+        Tribe(10, 20, field.cells[70][201]),
+        Tribe(10, 20, field.cells[71][199]),
+        Tribe(10, 20, field.cells[71][200]),
     ]
 
     tribe_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
@@ -60,8 +60,14 @@ def main():
         # Simulation
         tribe_surface.fill([0, 0, 0, 0])
 
+        tribes_next = []
         for tribe in tribes:
+            tribe.update()
+            if tribe.alive:
+                tribes_next.append(tribe)
+
             render_tribe(tribe_surface, tribe)
+        tribes = tribes_next
 
         # Update the window
         window.blit(field_surface, (0, 0))
