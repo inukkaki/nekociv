@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from src.civ.tribe import Tribe
 from src.field.cell import Cell
 
+N_TURN = 3000
+
 
 if __name__ == "__main__":
     # Players
@@ -23,7 +25,7 @@ if __name__ == "__main__":
     foods = []
     diffs = []
 
-    for i in range(100):
+    for i in range(N_TURN):
         tribe.update()
 
         xs.append(i)

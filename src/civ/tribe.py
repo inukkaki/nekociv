@@ -25,9 +25,13 @@ class Tribe:
     """
     POPL_INCR_MAX = 3
 
+    POPL_DECR_PROB = 0.2
+    POPL_DECR_MAX = 5
+
     DIFF_INIT = 1.0
     DIFF_COMMON_RATIO_INCR = 1.05
-    DIFF_COMMON_RATIO_DECR = 0.90
+    DIFF_COMMON_RATIO_DECR = 0.95
+    DIFF_COMMON_RATIO_SETL = 1.025
 
     FOOD_PROD_PARAM = 1000.0
 
@@ -55,16 +59,27 @@ class Tribe:
 
     def consume_food(self):
         """Consumes food and causes population change."""
-        consumption = int(self.diff*self.popl)
+        consumption = self.popl
         self.food -= consumption
+
         if self.food > 0:
             if self.popl >= 2:
+                # Population increase
                 self.popl += random.randint(0, Tribe.POPL_INCR_MAX)
             self.diff *= Tribe.DIFF_COMMON_RATIO_INCR
         elif self.food < 0:
+            # Starvation
             self.popl_decr = min(-self.food, self.popl)
             self.food = 0
             self.diff *= Tribe.DIFF_COMMON_RATIO_DECR
+        else:
+            # Natural decline in population
+            if random.random() < Tribe.POPL_DECR_PROB:
+                self.popl_decr = min(
+                    random.randint(0, Tribe.POPL_DECR_MAX), self.popl)
+
+            # Difficulty increase due to settlement
+            self.diff *= Tribe.DIFF_COMMON_RATIO_SETL
 
     def select_dest_for_emig(self):
         """Selects the destination for emigration from neighbor cells.
@@ -131,7 +146,8 @@ class Tribe:
         """Produces food based on the circumstances of this tribe."""
         if self.popl > 0:
             self.food += int(
-                self.popl/(Tribe.FOOD_PROD_PARAM*self.cell.stpn + EPSILON))
+                self.popl/(self.diff*Tribe.FOOD_PROD_PARAM*self.cell.stpn
+                           + EPSILON))
 
     def perish(self):
         """Eliminates this tribe from the cell if the population is 0 or less.

@@ -6,7 +6,8 @@ import pygame
 
 from src.field.render import calc_cell_rect
 
-RENDER_POPL_MAX = 100
+RENDER_POPL_MAX = 250
+RENDER_DIFF_MAX = 5.0
 
 
 def calc_popl_color(tribe):
@@ -23,7 +24,21 @@ def calc_popl_color(tribe):
     return color
 
 
-def render_tribe(surface, tribe, alpha):
+def calc_diff_color(tribe):
+    """Calculates the rendering color based on a tribe's difficulty.
+
+    Args:
+        tribe (src.civ.tribe.Tribe): Tribe to render.
+
+    Returns:
+        out (np.ndarray): Color vector (RGBA).
+    """
+    x = max(0, min(tribe.diff, RENDER_DIFF_MAX))/RENDER_DIFF_MAX
+    color = 255.0*np.array(cm.viridis(x), dtype=np.float64)
+    return color
+
+
+def render_tribe(surface, tribe, color_func):
     """Renders a tribe on a surface.
 
     If the population of the tribe is 0 or less, this function does not render
@@ -32,11 +47,11 @@ def render_tribe(surface, tribe, alpha):
     Args:
         surface (pygame.Surface): Surface to render the cell.
         tribe (src.civ.tribe.Tribe): Tribe to render.
-        alpha (float): Alpha value. 0 is transparent, and 255 is fully opaque.
+        color_func (Callable[src.civ.tribe.Tribe, numpy.ndarray]): Function to
+            calculate the rendering color.
     """
     if not tribe.alive:
         return
-    color = calc_popl_color(tribe)
-    color[3] = alpha
+    color = color_func(tribe)
     rect = calc_cell_rect(tribe.cell)
     pygame.draw.rect(surface, color, rect)
