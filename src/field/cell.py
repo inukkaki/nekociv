@@ -16,7 +16,7 @@ class Cell:
             steepness of 1.0 is defined as a vertical distance of 1 meter for
             every absolute difference of elevation of 1 meter.
         surface (int): State of this cell's surface.
-        tribe (src.civ.tribe.Tribe): Tribe that exists on this cell.
+        group (src.civ.group.Group): Group that exists on this cell.
     """
     SURFACE_SEA = 0
     SURFACE_LAND = 1
@@ -41,4 +41,4 @@ class Cell:
 
         self.surface = Cell.SURFACE_SEA
 
-        self.tribe = None
+        self.group = None

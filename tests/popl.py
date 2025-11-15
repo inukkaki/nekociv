@@ -2,7 +2,7 @@ import random
 
 import matplotlib.pyplot as plt
 
-from src.civ.tribe import Tribe
+from src.civ.group import Group
 from src.field.cell import Cell
 
 N_TURN = 3000
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     cell.stpn = 0.0007
     cell.surface = Cell.SURFACE_LAND
 
-    tribe = Tribe(10, 20, cell)
+    group = Group(10, 20, cell)
 
     # Simulation
     sim_seed = 1
@@ -26,14 +26,14 @@ if __name__ == "__main__":
     diffs = []
 
     for i in range(N_TURN):
-        tribe.update()
+        group.update()
 
         xs.append(i)
-        popls.append(tribe.popl)
-        foods.append(tribe.food)
-        diffs.append(tribe.diff)
+        popls.append(group.popl)
+        foods.append(group.food)
+        diffs.append(group.diff)
 
-        if not tribe.alive:
+        if not group.alive:
             break
 
     # Graph

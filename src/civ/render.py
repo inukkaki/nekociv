@@ -10,48 +10,48 @@ RENDER_POPL_MAX = 250
 RENDER_DIFF_MAX = 5.0
 
 
-def calc_popl_color(tribe):
-    """Calculates the rendering color based on a tribe's population.
+def calc_popl_color(group):
+    """Calculates the rendering color based on a group's population.
 
     Args:
-        tribe (src.civ.tribe.Tribe): Tribe to render.
+        group (src.civ.group.Group): Group to render.
 
     Returns:
         out (np.ndarray): Color vector (RGBA).
     """
-    x = max(0, min(tribe.popl, RENDER_POPL_MAX))/RENDER_POPL_MAX
+    x = max(0, min(group.popl, RENDER_POPL_MAX))/RENDER_POPL_MAX
     color = 255.0*np.array(cm.viridis(x), dtype=np.float64)
     return color
 
 
-def calc_diff_color(tribe):
-    """Calculates the rendering color based on a tribe's difficulty.
+def calc_diff_color(group):
+    """Calculates the rendering color based on a group's difficulty.
 
     Args:
-        tribe (src.civ.tribe.Tribe): Tribe to render.
+        group (src.civ.group.Group): Group to render.
 
     Returns:
         out (np.ndarray): Color vector (RGBA).
     """
-    x = max(0, min(tribe.diff, RENDER_DIFF_MAX))/RENDER_DIFF_MAX
+    x = max(0, min(group.diff, RENDER_DIFF_MAX))/RENDER_DIFF_MAX
     color = 255.0*np.array(cm.viridis(x), dtype=np.float64)
     return color
 
 
-def render_tribe(surface, tribe, color_func):
-    """Renders a tribe on a surface.
+def render_group(surface, group, color_func):
+    """Renders a group on a surface.
 
-    If the population of the tribe is 0 or less, this function does not render
-    the tribe.
+    If the population of the group is 0 or less, this function does not render
+    the group.
 
     Args:
         surface (pygame.Surface): Surface to render the cell.
-        tribe (src.civ.tribe.Tribe): Tribe to render.
-        color_func (Callable[src.civ.tribe.Tribe, numpy.ndarray]): Function to
+        group (src.civ.group.Group): Group to render.
+        color_func (Callable[src.civ.group.Group, numpy.ndarray]): Function to
             calculate the rendering color.
     """
-    if not tribe.alive:
+    if not group.alive:
         return
-    color = color_func(tribe)
-    rect = calc_cell_rect(tribe.cell)
+    color = color_func(group)
+    rect = calc_cell_rect(group.cell)
     pygame.draw.rect(surface, color, rect)

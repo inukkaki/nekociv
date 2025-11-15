@@ -1,4 +1,4 @@
-"""Module for tribes."""
+"""Module for groups."""
 
 import random
 
@@ -6,22 +6,22 @@ from src import EPSILON
 from src.field.cell import Cell
 
 
-class Tribe:
-    """Tribe that has a population of 1 or more.
+class Group:
+    """Group that has a population of 1 or more.
 
     Attributes:
-        popl (int): Population. If this value is 0 or less, this tribe will
+        popl (int): Population. If this value is 0 or less, this group will
             perish.
         food (int): Number of food.
         diff (float): Difficulty.
-        popl_decr (int): Population decline from this tribe (Popl. decrement).
+        popl_decr (int): Population decline from this group (Popl. decrement).
             This is used as a temporary variable, and will always be 0 before
             `update()` is executed.
-        popl_emig (int): Population migrating from this tribe (Popl.
+        popl_emig (int): Population migrating from this group (Popl.
             emigrants). This is used as a temporary variable, and will always
             be 0 before `update()` is executed.
-        cell (src.field.cell.Cell): Cell that this tribe exists on.
-        alive (bool): Indicates if this tribe is alive.
+        cell (src.field.cell.Cell): Cell that this group exists on.
+        alive (bool): Indicates if this group is alive.
     """
     POPL_INCR_MAX = 3
 
@@ -38,22 +38,22 @@ class Tribe:
     EMIG_DEST_WEIGHT_PARAM = 0.001
 
     def __init__(self, popl, food, cell):
-        """Tribe that has a population of 1 or more.
+        """Group that has a population of 1 or more.
 
         Args:
             popl (int): Population.
             food (int): Number of food.
-            cell (src.field.cell.Cell): Cell which this tribe exists on.
+            cell (src.field.cell.Cell): Cell which this group exists on.
         """
         self.popl = popl
         self.food = food
-        self.diff = Tribe.DIFF_INIT
+        self.diff = Group.DIFF_INIT
 
         self.popl_decr = 0
         self.popl_emig = 0
 
         self.cell = cell
-        self.cell.tribe = self
+        self.cell.group = self
 
         self.alive = True
 
@@ -65,21 +65,21 @@ class Tribe:
         if self.food > 0:
             if self.popl >= 2:
                 # Population increase
-                self.popl += random.randint(0, Tribe.POPL_INCR_MAX)
-            self.diff *= Tribe.DIFF_COMMON_RATIO_INCR
+                self.popl += random.randint(0, Group.POPL_INCR_MAX)
+            self.diff *= Group.DIFF_COMMON_RATIO_INCR
         elif self.food < 0:
             # Starvation
             self.popl_decr = min(-self.food, self.popl)
             self.food = 0
-            self.diff *= Tribe.DIFF_COMMON_RATIO_DECR
+            self.diff *= Group.DIFF_COMMON_RATIO_DECR
         else:
             # Natural decline in population
-            if random.random() < Tribe.POPL_DECR_PROB:
+            if random.random() < Group.POPL_DECR_PROB:
                 self.popl_decr = min(
-                    random.randint(0, Tribe.POPL_DECR_MAX), self.popl)
+                    random.randint(0, Group.POPL_DECR_MAX), self.popl)
 
             # Difficulty increase due to settlement
-            self.diff *= Tribe.DIFF_COMMON_RATIO_SETL
+            self.diff *= Group.DIFF_COMMON_RATIO_SETL
 
     def select_dest_for_emig(self):
         """Selects the destination for emigration from neighbor cells.
@@ -97,80 +97,80 @@ class Tribe:
         weights = []
         for candidate in candidates:
             weight = EPSILON
-            if candidate.tribe == None:
+            if candidate.group == None:
                 weight += self.EMIG_DEST_WEIGHT_PARAM/candidate.stpn
             else:
-                tribe = candidate.tribe
-                weight += tribe.food/(tribe.diff*tribe.popl)
+                group = candidate.group
+                weight += group.food/(group.diff*group.popl)
             weights.append(weight)
         dest = random.choices(candidates, weights=weights, k=1)[0]
         return dest
 
     def emigrate(self):
-        """Emigrates a part of the population to a neighbor cell or tribe.
+        """Emigrates a part of the population to a neighbor cell or group.
 
         Returns:
-            out (src.civ.tribe.Tribe | None): New tribe if the emigrants move
-                to a cell that no tribes exist on. Otherwise, None.
+            out (src.civ.group.Group | None): New group if the emigrants move
+                to a cell that no groups exist on. Otherwise, None.
         """
-        new_tribe = None
+        new_group = None
 
         if self.popl_decr <= 0:
             # The population does not decrease
-            return new_tribe
+            return new_group
         self.popl_emig = random.randint(0, self.popl_decr)
         if self.popl_emig <= 0:
             # No one is going to emigrate
-            return new_tribe
+            return new_group
 
         dest = self.select_dest_for_emig()
         if dest == None:
             # There are no neighbor cells that can be emigrated
-            return new_tribe
+            return new_group
 
-        if dest.tribe == None:
+        if dest.group == None:
             # Develop a new cell
-            new_tribe = Tribe(self.popl_emig, 0, dest)
-            new_tribe.produce_food()
+            new_group = Group(self.popl_emig, 0, dest)
+            new_group.produce_food()
         else:
-            # Emigrate to an existing tribe
-            dest.tribe.popl += self.popl_emig
+            # Emigrate to an existing group
+            dest.group.popl += self.popl_emig
 
-        return new_tribe
+        return new_group
 
     def decrease_popl(self):
         """Decreases the population based on `popl_decr`."""
         self.popl -= self.popl_decr
 
     def produce_food(self):
-        """Produces food based on the circumstances of this tribe."""
+        """Produces food based on the circumstances of this group."""
         if self.popl > 0:
             self.food += int(
-                self.popl/(self.diff*Tribe.FOOD_PROD_PARAM*self.cell.stpn
+                self.popl/(self.diff*Group.FOOD_PROD_PARAM*self.cell.stpn
                            + EPSILON))
 
     def perish(self):
-        """Eliminates this tribe from the cell if the population is 0 or less.
+        """Eliminates this group from the cell if the population is 0 or less.
         """
         if self.popl <= 0:
-            self.cell.tribe = None
+            self.cell.group = None
             self.alive = False
 
     def update(self):
-        """Updates this tribe's situation.
+        """Updates this group's situation.
 
         Returns:
-            out (src.civ.tribe.Tribe | None): New tribe if the emigrants move
-                to a cell that no tribes exist on. Otherwise, None.
+            out (src.civ.group.Group | None): New group if the emigrants move
+                to a cell that no groups exist on. Otherwise, None.
         """
         self.popl_decr = 0
         self.popl_emig = 0
 
         self.consume_food()
-        new_tribe = self.emigrate()
+        new_group = self.emigrate()
         self.decrease_popl()
         self.produce_food()
 
         self.perish()
 
-        return new_tribe
+        return new_group
