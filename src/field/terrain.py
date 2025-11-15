@@ -30,6 +30,7 @@ def generate_terrain(field, seed):
     random.seed(seed)
     calc_elevs(field)
     determine_sea_or_land(field)
+    calc_stpns(field)
 
 
 def create_close_list(field):
@@ -39,7 +40,7 @@ def create_close_list(field):
         field (src.field.field.Field): Field to generate terrain on.
 
     Returns:
-        list[list[bool]]: Close list. All values in it are `False`.
+        out (list[list[bool]]): Close list. All values in it are `False`.
     """
     close_list = []
     for _ in range(field.height):
@@ -213,3 +214,17 @@ def determine_sea_or_land(field):
             cell.surface = Cell.SURFACE_SEA
         else:
             cell.surface = Cell.SURFACE_LAND
+
+
+def calc_stpns(field):
+    """Calculates cells' steepness on a field.
+
+    Args:
+        field (src.field.field.Field): Field to generate terrain on.
+    """
+    for cell in itertools.chain.from_iterable(field.cells):
+        cell.stpn = 0.0
+        for neighbor in cell.neighborhood:
+            cell.stpn += abs(neighbor.elev - cell.elev)
+        cell.stpn /= field.cell_diameter
+        cell.stpn /= len(cell.neighborhood)
