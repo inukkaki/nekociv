@@ -88,6 +88,27 @@ def calc_elev_color(cell):
     return color
 
 
+def calc_elev_color_simple(cell):
+    """Calculates the rendering color based on a cell's elevation in a simple
+    way.
+
+    Args:
+        cell (src.field.cell.Cell): Cell to render.
+
+    Returns:
+        out (numpy.ndarray): Color vector (RGBA).
+    """
+    if cell.surface == Cell.SURFACE_SEA:
+        c = RENDER_ELEV_SEA_COLOR_DEEP
+        color = np.array([c, c, c, 255.0], dtype=np.float64)
+    elif cell.surface == Cell.SURFACE_LAND:
+        c = RENDER_ELEV_LAND_COLOR_MIN
+        color = np.array([c, c, c, 255.0], dtype=np.float64)
+    else:
+        color = np.array([255.0, 0.0, 255.0, 255.0], dtype=np.float64)
+    return color
+
+
 def calc_stpn_color(cell):
     """Calculates the rendering color based on a cell's steepness.
 

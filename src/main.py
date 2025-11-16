@@ -14,6 +14,7 @@ from src.civ.render import (
 from src.field.field import Field
 from src.field.render import (
     calc_elev_color,
+    calc_elev_color_simple,
     calc_stpn_color,
     render_field,
 )
@@ -33,7 +34,7 @@ def main():
     generate_terrain(field, seed)
 
     field_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
-    render_field(field_surface, field, calc_elev_color)
+    render_field(field_surface, field, calc_elev_color_simple)
 
     # Group
     character = [0.5, 0.5, 0.5]
