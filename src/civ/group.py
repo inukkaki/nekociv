@@ -122,6 +122,38 @@ class Group:
         dest = random.choices(candidates, weights=weights, k=1)[0]
         return dest
 
+    def emigrate_to_empty_cell(self, dest):
+        """Emigrates to a cell that no groups exist on.
+
+        Args:
+            dest (src.field.cell.Cell): Cell for the emigration destination.
+
+        Returns:
+            out (src.civ.group.Group): New group emigrated to the destination
+                cell.
+        """
+        new_group = Group(self.popl_emig, 0, self.character, dest)
+        new_group.produce_food()
+        return new_group
+
+    def emigrate_to_other_group(self, group):
+        """Emigrates to an existing other group.
+
+        In this method, the character of the group for the emigration target is
+        recalculated based on the ration of its native population to immigrant
+        population.
+
+        Args:
+            group (src.civ.group.Group): Group for the emigration target.
+        """
+        gpopl = group.popl
+        group.popl += self.popl_emig
+
+        # Blend the character of the other group and the immigrants
+        ipopl = self.popl_emig  # Immigrant population
+        group.character = (
+            gpopl*group.character + ipopl*self.character)/(gpopl + ipopl)
+
     def emigrate(self):
         """Emigrates a part of the population to a neighbor cell or group.
 
@@ -145,17 +177,9 @@ class Group:
             return new_group
 
         if dest.group == None:
-            # Develop a new cell
-            new_group = Group(self.popl_emig, 0, self.character, dest)
-            new_group.produce_food()
+            new_group = self.emigrate_to_empty_cell(dest)
         else:
-            # Emigrate to an existing group
-            dest.group.character = (
-                dest.group.popl*dest.group.character
-                + self.popl_emig*self.character)/(
-                    dest.group.popl + self.popl_emig)
-
-            dest.group.popl += self.popl_emig
+            self.emigrate_to_other_group(dest.group)
 
         return new_group
 
