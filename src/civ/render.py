@@ -38,6 +38,19 @@ def calc_diff_color(group):
     return color
 
 
+def calc_character_color(group):
+    """Calculates the rendering color based on a group's character.
+
+    Args:
+        group (src.civ.group.Group): Group to render.
+
+    Returns:
+        out (np.ndarray): Color vector (RGBA).
+    """
+    color = 255.0*group.character
+    return color
+
+
 def render_group(surface, group, color_func):
     """Renders a group on a surface.
 

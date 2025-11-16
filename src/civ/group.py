@@ -2,6 +2,8 @@
 
 import random
 
+import numpy as np
+
 from src import EPSILON
 from src.field.cell import Cell
 
@@ -20,6 +22,8 @@ class Group:
         popl_emig (int): Population migrating from this group (Popl.
             emigrants). This is used as a temporary variable, and will always
             be 0 before `update()` is executed.
+        character (numpy.ndarray): Character. Represented as a 3D vector, and
+            every element is in the range from 0.0 to 1.0.
         cell (src.field.cell.Cell): Cell that this group exists on.
         alive (bool): Indicates if this group is alive.
     """
@@ -37,12 +41,22 @@ class Group:
 
     EMIG_DEST_WEIGHT_PARAM = 0.001
 
-    def __init__(self, popl, food, cell):
+    N_DIM_CHARACTER = 3
+    CHAR_MIN = 0.0
+    CHAR_MAX = 1.0
+
+    CHAR_MUTATE_PARAM_1 = 0.05
+    CHAR_MUTATE_PARAM_2 = 5.0
+    CHAR_MUTATE_PARAM_3 = 50
+
+    def __init__(self, popl, food, character, cell):
         """Group that has a population of 1 or more.
 
         Args:
             popl (int): Population.
             food (int): Number of food.
+            character (list | numpy.ndarray): Character. Represented as a 3D
+                vector, and every element must be in the range from 0.0 to 1.0.
             cell (src.field.cell.Cell): Cell which this group exists on.
         """
         self.popl = popl
@@ -51,6 +65,8 @@ class Group:
 
         self.popl_decr = 0
         self.popl_emig = 0
+
+        self.character = np.array(character, dtype=np.float64)
 
         self.cell = cell
         self.cell.group = self
@@ -130,10 +146,15 @@ class Group:
 
         if dest.group == None:
             # Develop a new cell
-            new_group = Group(self.popl_emig, 0, dest)
+            new_group = Group(self.popl_emig, 0, self.character, dest)
             new_group.produce_food()
         else:
             # Emigrate to an existing group
+            dest.group.character = (
+                dest.group.popl*dest.group.character
+                + self.popl_emig*self.character)/(
+                    dest.group.popl + self.popl_emig)
+
             dest.group.popl += self.popl_emig
 
         return new_group
@@ -148,6 +169,18 @@ class Group:
             self.food += int(
                 self.popl/(self.diff*Group.FOOD_PROD_PARAM*self.cell.stpn
                            + EPSILON))
+
+    def mutate_character(self):
+        """Mutates this group's character randomly."""
+        direction = np.array(
+            [random.random() for _ in range(Group.N_DIM_CHARACTER)]) - 0.5
+        magnitude = random.uniform(
+            0.0, Group.CHAR_MUTATE_PARAM_1)/(Group.CHAR_MUTATE_PARAM_2
+                + self.popl/Group.CHAR_MUTATE_PARAM_3)
+        delta = magnitude/np.linalg.norm(direction)*direction
+        self.character += delta
+        self.character = np.clip(
+            self.character, Group.CHAR_MIN, Group.CHAR_MAX)
 
     def perish(self):
         """Eliminates this group from the cell if the population is 0 or less.
@@ -165,6 +198,8 @@ class Group:
         """
         self.popl_decr = 0
         self.popl_emig = 0
+
+        self.mutate_character()
 
         self.consume_food()
         new_group = self.emigrate()

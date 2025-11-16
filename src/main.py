@@ -6,6 +6,7 @@ import pygame.locals
 
 from src.civ.group import Group
 from src.civ.render import (
+    calc_character_color,
     calc_diff_color,
     calc_popl_color,
     render_group,
@@ -35,21 +36,22 @@ def main():
     render_field(field_surface, field, calc_elev_color)
 
     # Group
+    character = [0.5, 0.5, 0.5]
     groups = [
-        Group(10, 20, field.cells[69][199]),
-        Group(10, 20, field.cells[69][200]),
-        Group(10, 20, field.cells[70][199]),
-        Group(10, 20, field.cells[70][200]),
-        Group(10, 20, field.cells[70][201]),
-        Group(10, 20, field.cells[71][199]),
-        Group(10, 20, field.cells[71][200]),
+        Group(10, 20, character, field.cells[69][199]),
+        Group(10, 20, character, field.cells[69][200]),
+        Group(10, 20, character, field.cells[70][199]),
+        Group(10, 20, character, field.cells[70][200]),
+        Group(10, 20, character, field.cells[70][201]),
+        Group(10, 20, character, field.cells[71][199]),
+        Group(10, 20, character, field.cells[71][200]),
     ]
 
     group_surface = pygame.Surface(size=(513, 512), flags=pygame.SRCALPHA)
-    group_color_func = calc_popl_color
+    group_color_func = calc_character_color
 
     # Main loop
-    sim_seed = 1
+    sim_seed = 10
     random.seed(sim_seed)
 
     running = True
@@ -75,13 +77,13 @@ def main():
                 groups_next.append(new_group)
                 render_group(group_surface, new_group, group_color_func)
         groups = groups_next
-        random.shuffle(groups)
+        groups.sort(key=lambda group: group.popl)
+            # Groups act in order of population size, starting with the
+            # smallest
 
         # Update the window
-        fs = pygame.transform.scale(field_surface, (2*513, 2*512))
-        ts = pygame.transform.scale(group_surface, (2*513, 2*512))
-        window.blit(fs, (-513, 0))
-        window.blit(ts, (-513, 0))
+        window.blit(field_surface, (0, 0))
+        window.blit(group_surface, (0, 0))
         pygame.display.update()
 
         time.sleep(1/60)
