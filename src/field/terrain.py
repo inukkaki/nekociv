@@ -1,6 +1,7 @@
 """Module for terrain generation."""
 
 import itertools
+import math
 import random
 
 from src.field import (
@@ -10,14 +11,17 @@ from src.field import (
 )
 from src.field.cell import Cell
 
-ELEV_GEN_N = -1.2   # North end
-ELEV_GEN_S = -1.2   # South end
+ELEV_GEN_N = -0.75  # North end
+ELEV_GEN_S = 0.5    # South end
 ELEV_GEN_WE = -0.8  # West/east end
 
 ELEV_GEN_MEAN = 0.0
 ELEV_GEN_SD = 1.0
 
 ELEV_GEN_COMPLEXITY = 1.0
+
+ELEV_GEN_ADJUST_OFFSET = -0.2
+ELEV_GEN_ADJUST_SCALE = 0.25
 
 
 def generate_terrain(field, seed):
@@ -60,6 +64,7 @@ def calc_elevs(field):
     close_list = create_close_list(field)
     init_elevs(field, close_list)
     interpolate_elevs(field, close_list)
+    lower_elevs_in_south_half(field)
     rescale_elevs(field, ELEV_MEAN, ELEV_SD)
 
 
@@ -188,6 +193,18 @@ def interpolate_elevs(field, close_list):
             field, close_list, scale, complexity)
         scale //= 2
         complexity /= 2
+
+
+def lower_elevs_in_south_half(field):
+    """Lower the elevation in the southern half of the field.
+
+    Args:
+        field (src.field.field.Field): Field to generate terrain on.
+    """
+    for cell in itertools.chain.from_iterable(field.cells):
+        phase = 2*math.pi*cell.row/(field.height - 1)
+        cell.elev += ELEV_GEN_ADJUST_OFFSET
+        cell.elev += ELEV_GEN_ADJUST_SCALE*math.sin(phase)
 
 
 def rescale_elevs(field, mean, sd):

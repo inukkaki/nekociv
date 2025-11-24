@@ -38,13 +38,13 @@ def main():
 
     # Field
     field = Field(64, 8, 4)
-    seed = 9
-    generate_terrain(field, seed)
+    field_seed = 9  # 3, 9
+    generate_terrain(field, field_seed)
 
     field_sfc_1 = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
     field_sfc_2 = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
-    render_field(field_sfc_1, field, calc_elev_color)
-    render_field(field_sfc_2, field, calc_elev_color_simple)
+    render_field(field_sfc_1, field, calc_stpn_color)
+    render_field(field_sfc_2, field, calc_elev_color)
 
     # Group
     character = [0.5, 0.5, 0.5]
@@ -57,9 +57,6 @@ def main():
         Group(10, 20, character, field.cells[81][199]),
         Group(10, 20, character, field.cells[81][200]),
     ]
-
-    group_surface = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
-    group_color_func = calc_character_color
 
     popl_sfc = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
     char_sfc = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
@@ -80,7 +77,7 @@ def main():
 
         # Simulation
         #popl_sfc.fill([0, 0, 0, 0])
-        #char_sfc.fill([0, 0, 0, 0])
+        char_sfc.fill([0, 0, 0, 0])
 
         groups_next = []
         for group in groups:

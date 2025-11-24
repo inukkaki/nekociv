@@ -131,6 +131,14 @@ def main():
                 key = event.key
                 if key == pygame.K_z:
                     elevs = smooth_elevs(elevs, width, sharp_filter)
+                if key == pygame.K_x:
+                    elevs = smooth_elevs(
+                        elevs, width, lambda elevs, i, width:
+                            smoothing_filter(elevs, i, width, 3))
+                if key == pygame.K_c:
+                    elevs = smooth_elevs(
+                        elevs, width, lambda elevs, i, width:
+                            weight_filter(elevs, i, width, 3))
         if not running:
             break
 
