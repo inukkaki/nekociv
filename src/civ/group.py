@@ -198,10 +198,13 @@ class Group:
         """Mutates this group's character randomly."""
         direction = np.array(
             [random.random() for _ in range(Group.N_DIM_CHARACTER)]) - 0.5
+        direction_norm = np.linalg.norm(direction)
+        if direction_norm <= 0.0:
+            return
         magnitude = random.uniform(
             0.0, Group.CHAR_MUTATE_PARAM_1)/(Group.CHAR_MUTATE_PARAM_2
                 + self.popl/Group.CHAR_MUTATE_PARAM_3)
-        delta = magnitude/np.linalg.norm(direction)*direction
+        delta = magnitude/direction_norm*direction
         self.character += delta
         self.character = np.clip(
             self.character, Group.CHAR_MIN, Group.CHAR_MAX)
