@@ -43,26 +43,31 @@ def main():
 
     field_sfc_1 = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
     field_sfc_2 = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
-    render_field(field_sfc_1, field, calc_stpn_color)
-    render_field(field_sfc_2, field, calc_elev_color)
+    render_field(field_sfc_1, field, calc_elev_color)
+    render_field(field_sfc_2, field, calc_elev_color_simple)
 
     # Group
+    groups = []
+
+    central_cell = field.cells[80][200]
     character = [0.5, 0.5, 0.5]
-    groups = [
-        Group(10, 20, character, field.cells[79][199]),
-        Group(10, 20, character, field.cells[79][200]),
-        Group(10, 20, character, field.cells[80][199]),
-        Group(10, 20, character, field.cells[80][200]),
-        Group(10, 20, character, field.cells[80][201]),
-        Group(10, 20, character, field.cells[81][199]),
-        Group(10, 20, character, field.cells[81][200]),
-    ]
+    groups.append(Group(10, 20, character, central_cell))
+    for neighbor in central_cell.neighborhood:
+        groups.append(Group(10, 20, character, neighbor))
+
+    """
+    central_cell = field.cells[80][320]
+    character = [0.5, 0.5, 1.0]
+    groups.append(Group(10, 20, character, central_cell))
+    for neighbor in central_cell.neighborhood:
+        groups.append(Group(10, 20, character, neighbor))
+    """
 
     popl_sfc = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
     char_sfc = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
 
     # Main loop
-    sim_seed = 10
+    sim_seed = 1
     random.seed(sim_seed)
 
     running = True
@@ -84,18 +89,16 @@ def main():
             new_group = group.update()
             if group.alive:
                 groups_next.append(group)
-
-                #render_group(popl_sfc, group, calc_popl_color)
-                render_group(char_sfc, group, calc_character_color)
             if new_group != None and new_group.alive:
                 groups_next.append(new_group)
-
-                #render_group(popl_sfc, new_group, calc_popl_color)
-                render_group(char_sfc, new_group, calc_character_color)
         groups = groups_next
         groups.sort(key=lambda group: group.popl)
             # Groups act in order of population size, starting with the
             # smallest
+
+        for group in groups:
+            #render_group(popl_sfc, group, calc_popl_color)
+            render_group(char_sfc, group, calc_character_color)
 
         # Update the window
         window.blit(pygame.transform.scale(field_sfc_1, (512, 257)), (0, 514))
