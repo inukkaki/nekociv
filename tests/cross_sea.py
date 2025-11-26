@@ -28,7 +28,7 @@ if __name__ == "__main__":
     window = pygame.display.set_mode(size=(1025, 514))
 
     # Field
-    field = Field(64, 8, 4)
+    field = Field()
 
     # Cell
     ship = field.cells[230][0]

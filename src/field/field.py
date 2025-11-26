@@ -2,6 +2,11 @@
 
 import itertools
 
+from src.field import (
+    FIELD_HEIGHT,
+    FIELD_SCALE,
+    FIELD_WIDTH,
+)
 from src.field.cell import Cell
 
 
@@ -14,24 +19,13 @@ class Field:
         width (int): Number of rows in the cell array.
         height (int): Number of columns in the cell array.
         cells (list[list[src.field.cell.Cell]]): 2D array of cells.
-        cell_diameter (float): Diameter of a circle inscribed in a cell.
     """
-    CIRCUMFERENCE = 40_000  # km
 
-    def __init__(self, scale, base_width, base_height):
-        """Field which simulations are performed on.
-
-        Args:
-            scale (int): Scale of terrain simplicity. The greater this value
-                is, the simpler the terrain becomes.
-            base_width (int): This value, multiplied by the scale, becomes the
-                width of this field.
-            base_height (int): This value, multiplied by the scale and added 1,
-                becomes the height of this field.
-        """
-        self.scale = scale
-        self.width = self.scale*base_width
-        self.height = self.scale*base_height + 1
+    def __init__(self):
+        """Field which simulations are performed on."""
+        self.scale = FIELD_SCALE
+        self.width = FIELD_WIDTH
+        self.height = FIELD_HEIGHT
 
         self.cells = []
         for row in range(self.height):
@@ -41,8 +35,6 @@ class Field:
                 temp_cells.append(cell)
             self.cells.append(temp_cells)
         self.init_neighborhood_of_cells()
-
-        self.cell_diameter = 1000*Field.CIRCUMFERENCE/(2*self.height)  # m
 
     def init_neighborhood_of_cells(self):
         """Initializes every cell's neighborhood."""

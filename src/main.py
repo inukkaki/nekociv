@@ -37,7 +37,7 @@ def main():
     pygame.display.set_caption(title="nekociv")
 
     # Field
-    field = Field(64, 8, 4)
+    field = Field()
     field_seed = 9  # 3, 9
     generate_terrain(field, field_seed)
 

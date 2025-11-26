@@ -5,6 +5,7 @@ import math
 import random
 
 from src.field import (
+    CELL_DIAMETER,
     ELEV_MEAN,
     ELEV_SD,
     SEA_LEVEL,
@@ -243,5 +244,5 @@ def calc_stpns(field):
         cell.stpn = 0.0
         for neighbor in cell.neighborhood:
             cell.stpn += abs(neighbor.elev - cell.elev)
-        cell.stpn /= field.cell_diameter
+        cell.stpn /= CELL_DIAMETER
         cell.stpn /= len(cell.neighborhood)
