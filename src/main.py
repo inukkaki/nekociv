@@ -81,7 +81,7 @@ def main():
             break
 
         # Simulation
-        #popl_sfc.fill([0, 0, 0, 0])
+        popl_sfc.fill([0, 0, 0, 0])
         char_sfc.fill([0, 0, 0, 0])
 
         groups_next = []
@@ -97,12 +97,12 @@ def main():
             # smallest
 
         for group in groups:
-            #render_group(popl_sfc, group, calc_popl_color)
+            render_group(popl_sfc, group, calc_popl_color)
             render_group(char_sfc, group, calc_character_color)
 
         # Update the window
         window.blit(pygame.transform.scale(field_sfc_1, (512, 257)), (0, 514))
-        #window.blit(pygame.transform.scale(popl_sfc, (512, 257)), (0, 514))
+        window.blit(pygame.transform.scale(popl_sfc, (512, 257)), (0, 514))
 
         window.blit(field_sfc_2, (0, 0))
         window.blit(char_sfc, (0, 0))
