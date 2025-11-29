@@ -1,3 +1,3 @@
 # nekociv
 
-civilization simulator
+civilization simulator (foolish)
