@@ -9,6 +9,7 @@ import pygame.locals
 from src.field import (
     CELL_COORD_SCALE,
     CELL_DISTANCE,
+    FIELD_COORD_X_MAX,
 )
 from src.field.field import Field
 
@@ -35,8 +36,8 @@ if __name__ == "__main__":
     field = Field()
 
     # Cell
-    ship = field.cells[230][0]
-    target = CELL_COORD_SCALE*np.array([200, 0], dtype=np.float64)
+    ship = field.cells[0][50]
+    target = CELL_COORD_SCALE*np.array([400, 200], dtype=np.float64)
 
     # Main loop
     running = True
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         dists = []
         for neighbor in ship.neighborhood + [ship]:
             x_dist_1, y_dist = target - neighbor.coord
-            x_dist_2 = x_dist_1 - field.width
+            x_dist_2 = x_dist_1 - FIELD_COORD_X_MAX
             x_dist = min(abs(x_dist_1), abs(x_dist_2))
             dist = x_dist**2 + y_dist**2
             dists.append((dist, neighbor))

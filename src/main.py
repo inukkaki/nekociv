@@ -70,6 +70,16 @@ def main():
     sim_seed = 1
     random.seed(sim_seed)
 
+    m_pressing = False
+    m_x0, m_y0 = pygame.mouse.get_pos()
+    m_x1, m_y1 = m_x0, m_y0
+    m_wh = 0
+
+    major_sfc = pygame.Surface(size=(1025, 514), flags=pygame.SRCALPHA)
+    cam_ax, cam_ay = 1025/2, 514/2
+    cam_x, cam_y = 0, 0
+    cam_scale = 1.0
+
     running = True
 
     while running:
@@ -77,11 +87,32 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.locals.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    cam_x = 0
+                    cam_y = 0
+                    cam_scale = 1.0
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                m_pressing = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                m_pressing = False
+            elif event.type == pygame.MOUSEWHEEL:
+                m_wh = event.y
         if not running:
             break
 
+        m_x1, m_y1 = pygame.mouse.get_pos()
+        if m_pressing:
+            m_dx = m_x1 - m_x0
+            m_dy = m_y1 - m_y0
+            cam_x += m_dx/cam_scale
+            cam_y += m_dy/cam_scale
+        m_x0, m_y0 = m_x1, m_y1
+        cam_scale *= 1.0 + 0.1*m_wh
+        m_wh = 0
+
         # Simulation
-        popl_sfc.fill([0, 0, 0, 0])
+        #popl_sfc.fill([0, 0, 0, 0])
         char_sfc.fill([0, 0, 0, 0])
 
         groups_next = []
@@ -97,15 +128,25 @@ def main():
             # smallest
 
         for group in groups:
-            render_group(popl_sfc, group, calc_popl_color)
+            #render_group(popl_sfc, group, calc_popl_color)
             render_group(char_sfc, group, calc_character_color)
 
         # Update the window
-        window.blit(pygame.transform.scale(field_sfc_1, (512, 257)), (0, 514))
-        window.blit(pygame.transform.scale(popl_sfc, (512, 257)), (0, 514))
+        window.fill([0, 0, 0])
 
-        window.blit(field_sfc_2, (0, 0))
-        window.blit(char_sfc, (0, 0))
+        window.blit(pygame.transform.scale(field_sfc_1, (512, 257)), (0, 514))
+        #window.blit(pygame.transform.scale(popl_sfc, (512, 257)), (0, 514))
+
+        major_sfc.blit(field_sfc_2, (0, 0))
+        major_sfc.blit(char_sfc, (0, 0))
+
+        dst_x = cam_scale*(cam_x - cam_ax) + cam_ax
+        dst_y = cam_scale*(cam_y - cam_ay) + cam_ay
+        dst_w = cam_scale*1025
+        dst_h = cam_scale*514
+
+        window.blit(
+            pygame.transform.scale(major_sfc, (dst_w, dst_h)), (dst_x, dst_y))
 
         pygame.display.update()
 
