@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from src.field import CELL_COORD_SCALE
+
 
 class Cell:
     """Hexagonal cell that composes a field.
@@ -10,6 +12,8 @@ class Cell:
         row (int): Row number where this cell is located on the field.
         col (int): Column number where this cell is located on the field.
         pos (numpy.ndarray): Position of this cell.
+        coord (numpy.ndarray): Coordinate of this cell. Reflects the actual
+            scale.
         neighborhood (list[src.field.cell.Cell]): List of neighbor cells.
         elev (float): Elevation (m).
         stpn (float): Steepness. Mean elevation gradient with neighbor cells. A
@@ -33,6 +37,7 @@ class Cell:
 
         self.pos = np.array(
             [self.col + (self.row % 2)/2, self.row], dtype=np.float64)
+        self.coord = CELL_COORD_SCALE*self.pos
 
         self.neighborhood = []
 

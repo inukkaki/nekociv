@@ -109,6 +109,16 @@ def main():
             elev += r*w
         return elev
 
+    def sharp_filter(elevs, i, width):
+        elev = elevs[i]
+        if i - 1 >= 0:
+            elev += -elevs[i - 1]
+            elev += elevs[i]
+        if i + 1 <= width - 1:
+            elev += -elevs[i + 1]
+            elev += elevs[i]
+        return elev
+
     # Main loop
     running = True
 
@@ -120,9 +130,15 @@ def main():
             if event.type == pygame.KEYDOWN:
                 key = event.key
                 if key == pygame.K_z:
+                    elevs = smooth_elevs(elevs, width, sharp_filter)
+                if key == pygame.K_x:
                     elevs = smooth_elevs(
                         elevs, width, lambda elevs, i, width:
-                            weight_filter(elevs, i, width, 9))
+                            smoothing_filter(elevs, i, width, 3))
+                if key == pygame.K_c:
+                    elevs = smooth_elevs(
+                        elevs, width, lambda elevs, i, width:
+                            weight_filter(elevs, i, width, 3))
         if not running:
             break
 

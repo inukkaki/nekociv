@@ -5,6 +5,11 @@ import random
 import numpy as np
 
 from src import EPSILON
+from src.field import (
+    CELL_DISTANCE,
+    FIELD_COORD_X_MAX,
+    N_DIM_FIELD,
+)
 from src.field.cell import Cell
 
 
@@ -37,9 +42,14 @@ class Group:
     DIFF_COMMON_RATIO_DECR = 0.95
     DIFF_COMMON_RATIO_SETL = 1.025
 
-    FOOD_PROD_PARAM = 1000.0
+    FOOD_PROD_PARAM = 1100.0
 
-    EMIG_DEST_WEIGHT_PARAM = 0.001
+    EMIG_DEST_WEIGHT_PARAM_1 = 0.01
+    EMIG_DEST_WEIGHT_PARAM_2 = 0.001
+
+    CROS_TEMP_DEST_DIST_MIN = 10_000     # m
+    CROS_TEMP_DEST_DIST_MAX = 1_000_000  # m
+    CROS_TOTAL_DIST_MAX = 1_000_000      # m
 
     N_DIM_CHARACTER = 3
     CHAR_MIN = 0.0
@@ -105,19 +115,20 @@ class Group:
                 neighbor ones that can be emigrated. Otherwise, None.
         """
         dest = None
-        candidates = [
-            neighbor for neighbor in self.cell.neighborhood
-            if neighbor.surface == Cell.SURFACE_LAND]
+        candidates = self.cell.neighborhood
         if len(candidates) == 0:
             return dest
         weights = []
         for candidate in candidates:
             weight = EPSILON
-            if candidate.group == None:
-                weight += self.EMIG_DEST_WEIGHT_PARAM/candidate.stpn
-            else:
-                group = candidate.group
-                weight += group.food/(group.diff*group.popl)
+            if candidate.surface == Cell.SURFACE_SEA:
+                weight += self.EMIG_DEST_WEIGHT_PARAM_1
+            elif candidate.surface == Cell.SURFACE_LAND:
+                if candidate.group == None:
+                    weight += self.EMIG_DEST_WEIGHT_PARAM_2/candidate.stpn
+                else:
+                    group = candidate.group
+                    weight += group.food/(group.diff*group.popl)
             weights.append(weight)
         dest = random.choices(candidates, weights=weights, k=1)[0]
         return dest
@@ -154,6 +165,90 @@ class Group:
         group.character = (
             gpopl*group.character + ipopl*self.character)/(gpopl + ipopl)
 
+    def set_temporary_dest_for_crossing(self, cell_curr):
+        """Set a temporary destination cell in the route for crossing.
+
+        Args:
+            cell_curr (src.field.cell.Cell): Cell that serves as the departure
+                point for the destination.
+
+        Returns:
+            out (src.field.cell.Cell): Temporary destination cell.
+        """
+        while True:
+            direction = np.array(
+                [random.random() for _ in range(N_DIM_FIELD)]) - 0.5
+            direction_norm = np.linalg.norm(direction)
+            if direction_norm > 0.0:
+                break
+        temp_dest = direction/direction_norm
+        temp_dest *= random.uniform(
+            Group.CROS_TEMP_DEST_DIST_MIN, Group.CROS_TEMP_DEST_DIST_MAX)
+        temp_dest += cell_curr.coord
+        return temp_dest
+
+    def calc_vanish_prob_for_crossing(self, total_dist):
+        """Calculate the probability of vanishing during the crossing.
+
+        Args:
+            total_dist (float): Total distance of the crossing (m).
+
+        Returns:
+            out (float): Probability of vanishing.
+        """
+        return 2*total_dist/Group.CROS_TOTAL_DIST_MAX**2
+
+    def cross_sea(self, departure_cell):
+        """Cross the sea and emigrate to another cell or group.
+
+        Args:
+            departure_cell (src.field.cell.Cell): Cell that serves as the
+                departure point for this crossing.
+
+        Returns:
+            out (src.civ.group.Group | None): New group if the emigrants move
+                to a cell that no groups exist on. Otherwise, None.
+        """
+        new_group = None
+
+        # Departure
+        cell_curr = departure_cell
+        temp_dest = self.set_temporary_dest_for_crossing(cell_curr)
+        total_dist = CELL_DISTANCE
+
+        while total_dist < Group.CROS_TOTAL_DIST_MAX:
+            # Vanish during the crossing
+            vanish_prob = self.calc_vanish_prob_for_crossing(total_dist)
+            if random.random() < vanish_prob:
+                break
+
+            # Determine the next cell to proceed
+            candidates_and_dists = []
+            candidates = [cell_curr] + cell_curr.neighborhood
+            for candidate in candidates:
+                x_dist_1, y_dist = temp_dest - candidate.coord
+                x_dist_2 = abs(x_dist_1 - FIELD_COORD_X_MAX)
+                x_dist = min(abs(x_dist_1), x_dist_2)
+                dist = x_dist**2 + y_dist**2
+                candidates_and_dists.append((candidate, dist))
+            cell_next, dist = min(candidates_and_dists, key=lambda x: x[1])
+
+            # Landing
+            if cell_next.surface == Cell.SURFACE_LAND:
+                if cell_next.group == None:
+                    new_group = self.emigrate_to_empty_cell(cell_next)
+                else:
+                    self.emigrate_to_other_group(cell_next.group)
+                break
+
+            # Re-determine a temporary destination
+            if cell_next == cell_curr or dist < CELL_DISTANCE**2:
+                temp_dest = self.set_temporary_dest_for_crossing(cell_next)
+            cell_curr = cell_next
+            total_dist += CELL_DISTANCE
+
+        return new_group
+
     def emigrate(self):
         """Emigrates a part of the population to a neighbor cell or group.
 
@@ -176,10 +271,15 @@ class Group:
             # There are no neighbor cells that can be emigrated
             return new_group
 
-        if dest.group == None:
-            new_group = self.emigrate_to_empty_cell(dest)
-        else:
-            self.emigrate_to_other_group(dest.group)
+        if dest.surface == Cell.SURFACE_SEA:
+            # Cross the sea
+            new_group = self.cross_sea(dest)
+        elif dest.surface == Cell.SURFACE_LAND:
+            # Reach another cell or group
+            if dest.group == None:
+                new_group = self.emigrate_to_empty_cell(dest)
+            else:
+                self.emigrate_to_other_group(dest.group)
 
         return new_group
 
@@ -198,10 +298,13 @@ class Group:
         """Mutates this group's character randomly."""
         direction = np.array(
             [random.random() for _ in range(Group.N_DIM_CHARACTER)]) - 0.5
+        direction_norm = np.linalg.norm(direction)
+        if direction_norm <= 0.0:
+            return
         magnitude = random.uniform(
             0.0, Group.CHAR_MUTATE_PARAM_1)/(Group.CHAR_MUTATE_PARAM_2
                 + self.popl/Group.CHAR_MUTATE_PARAM_3)
-        delta = magnitude/np.linalg.norm(direction)*direction
+        delta = magnitude/direction_norm*direction
         self.character += delta
         self.character = np.clip(
             self.character, Group.CHAR_MIN, Group.CHAR_MAX)
