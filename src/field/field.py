@@ -2,6 +2,8 @@
 
 import itertools
 
+import numpy as np
+
 from src.field import (
     FIELD_HEIGHT,
     FIELD_SCALE,
@@ -20,6 +22,8 @@ class Field:
         height (int): Number of columns in the cell array.
         cells (list[list[src.field.cell.Cell]]): 2D array of cells.
     """
+    RNG_SEED_MIN = 1
+    RNG_SEED_MAX = 2**31 - 1
 
     def __init__(self):
         """Field which simulations are performed on."""
@@ -63,3 +67,14 @@ class Field:
                     cell_6 = self.cells[r + 1][(c + 1) % self.width]
                 cell.neighborhood.append(cell_5)
                 cell.neighborhood.append(cell_6)
+
+    def init_rng_of_cells(self, seed):
+        """Initializes every cell's random number generator.
+
+        Args:
+            seed (int): Seed for generating the seeds for the cells' generator.
+        """
+        rng = np.random.default_rng(seed)
+        for cell in itertools.chain.from_iterable(self.cells):
+            seed = rng.integers(Field.RNG_SEED_MIN, Field.RNG_SEED_MAX)
+            cell.init_rng(seed)

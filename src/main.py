@@ -1,5 +1,4 @@
 import ctypes
-import random
 import time
 
 import pygame
@@ -56,6 +55,12 @@ def main():
         groups.append(Group(10, 20, character, neighbor))
 
     """
+    central_cell = field.cells[150][280]
+    character = [0.5, 1.0, 0.5]
+    groups.append(Group(10, 20, character, central_cell))
+    for neighbor in central_cell.neighborhood:
+        groups.append(Group(10, 20, character, neighbor))
+
     central_cell = field.cells[80][320]
     character = [0.5, 0.5, 1.0]
     groups.append(Group(10, 20, character, central_cell))
@@ -68,7 +73,7 @@ def main():
 
     # Main loop
     sim_seed = 1
-    random.seed(sim_seed)
+    field.init_rng_of_cells(sim_seed)
 
     m_pressing = False
     m_x0, m_y0 = pygame.mouse.get_pos()

@@ -33,6 +33,9 @@ if __name__ == "__main__":
     # Simulation
     sim_seed = 1
     random.seed(sim_seed)
+    c1.init_rng(random.randint(1, 2**31 - 1))
+    c2.init_rng(random.randint(1, 2**31 - 1))
+    c3.init_rng(random.randint(1, 2**31 - 1))
 
     xs = []
     popls = []

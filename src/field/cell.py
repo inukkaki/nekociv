@@ -20,7 +20,8 @@ class Cell:
             steepness of 1.0 is defined as a vertical distance of 1 meter for
             every absolute difference of elevation of 1 meter.
         surface (int): State of this cell's surface.
-        group (src.civ.group.Group): Group that exists on this cell.
+        group (src.civ.group.Group | None): Group that exists on this cell.
+        rng (numpy.random.Generator | None): Random number generator.
     """
     SURFACE_SEA = 0
     SURFACE_LAND = 1
@@ -47,3 +48,13 @@ class Cell:
         self.surface = Cell.SURFACE_SEA
 
         self.group = None
+
+        self.rng = None
+
+    def init_rng(self, seed):
+        """Initializes this cell's random number generator.
+
+        Args:
+            seed (int): Seed for the generator.
+        """
+        self.rng = np.random.default_rng(seed)
