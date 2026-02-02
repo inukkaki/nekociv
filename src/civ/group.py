@@ -1,7 +1,5 @@
 """Module for groups."""
 
-import random
-
 import numpy as np
 
 from src import EPSILON
@@ -91,7 +89,8 @@ class Group:
         if self.food > 0:
             if self.popl >= 2:
                 # Population increase
-                self.popl += random.randint(0, Group.POPL_INCR_MAX)
+                self.popl += self.cell.rng.integers(
+                    0, Group.POPL_INCR_MAX, endpoint=True)
             self.diff *= Group.DIFF_COMMON_RATIO_INCR
         elif self.food < 0:
             # Starvation
@@ -100,9 +99,10 @@ class Group:
             self.diff *= Group.DIFF_COMMON_RATIO_DECR
         else:
             # Natural decline in population
-            if random.random() < Group.POPL_DECR_PROB:
+            if self.cell.rng.random() < Group.POPL_DECR_PROB:
                 self.popl_decr = min(
-                    random.randint(0, Group.POPL_DECR_MAX), self.popl)
+                    self.cell.rng.integers(
+                        0, Group.POPL_DECR_MAX, endpoint=True), self.popl)
 
             # Difficulty increase due to settlement
             self.diff *= Group.DIFF_COMMON_RATIO_SETL
@@ -130,7 +130,9 @@ class Group:
                     group = candidate.group
                     weight += group.food/(group.diff*group.popl)
             weights.append(weight)
-        dest = random.choices(candidates, weights=weights, k=1)[0]
+        probs = np.array(weights, dtype=np.float64)
+        probs /= probs.sum()
+        dest = self.cell.rng.choice(candidates, p=probs)
         return dest
 
     def emigrate_to_empty_cell(self, dest):
@@ -166,7 +168,7 @@ class Group:
             gpopl*group.character + ipopl*self.character)/(gpopl + ipopl)
 
     def set_temporary_dest_for_crossing(self, cell_curr):
-        """Set a temporary destination cell in the route for crossing.
+        """Sets a temporary destination cell in the route for crossing.
 
         Args:
             cell_curr (src.field.cell.Cell): Cell that serves as the departure
@@ -176,19 +178,18 @@ class Group:
             out (src.field.cell.Cell): Temporary destination cell.
         """
         while True:
-            direction = np.array(
-                [random.random() for _ in range(N_DIM_FIELD)]) - 0.5
+            direction = cell_curr.rng.random(N_DIM_FIELD) - 0.5
             direction_norm = np.linalg.norm(direction)
             if direction_norm > 0.0:
                 break
         temp_dest = direction/direction_norm
-        temp_dest *= random.uniform(
+        temp_dest *= cell_curr.rng.uniform(
             Group.CROS_TEMP_DEST_DIST_MIN, Group.CROS_TEMP_DEST_DIST_MAX)
         temp_dest += cell_curr.coord
         return temp_dest
 
     def calc_vanish_prob_for_crossing(self, total_dist):
-        """Calculate the probability of vanishing during the crossing.
+        """Calculates the probability of vanishing during the crossing.
 
         Args:
             total_dist (float): Total distance of the crossing (m).
@@ -199,7 +200,7 @@ class Group:
         return 2*total_dist/Group.CROS_TOTAL_DIST_MAX**2
 
     def cross_sea(self, departure_cell):
-        """Cross the sea and emigrate to another cell or group.
+        """Crosses the sea and emigrate to another cell or group.
 
         Args:
             departure_cell (src.field.cell.Cell): Cell that serves as the
@@ -219,7 +220,7 @@ class Group:
         while total_dist < Group.CROS_TOTAL_DIST_MAX:
             # Vanish during the crossing
             vanish_prob = self.calc_vanish_prob_for_crossing(total_dist)
-            if random.random() < vanish_prob:
+            if cell_curr.rng.random() < vanish_prob:
                 break
 
             # Determine the next cell to proceed
@@ -261,7 +262,8 @@ class Group:
         if self.popl_decr <= 0:
             # The population does not decrease
             return new_group
-        self.popl_emig = random.randint(0, self.popl_decr)
+        self.popl_emig = self.cell.rng.integers(
+            0, self.popl_decr, endpoint=True)
         if self.popl_emig <= 0:
             # No one is going to emigrate
             return new_group
@@ -296,12 +298,11 @@ class Group:
 
     def mutate_character(self):
         """Mutates this group's character randomly."""
-        direction = np.array(
-            [random.random() for _ in range(Group.N_DIM_CHARACTER)]) - 0.5
+        direction = self.cell.rng.random(Group.N_DIM_CHARACTER) - 0.5
         direction_norm = np.linalg.norm(direction)
         if direction_norm <= 0.0:
             return
-        magnitude = random.uniform(
+        magnitude = self.cell.rng.uniform(
             0.0, Group.CHAR_MUTATE_PARAM_1)/(Group.CHAR_MUTATE_PARAM_2
                 + self.popl/Group.CHAR_MUTATE_PARAM_3)
         delta = magnitude/direction_norm*direction
